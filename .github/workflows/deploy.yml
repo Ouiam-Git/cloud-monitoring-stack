@@ -125,6 +125,8 @@ jobs:
           EOF
 
       - name: Run Ansible playbook
+        env:
+          ANSIBLE_ROLES_PATH: ansible/roles
         run: |
           ansible-playbook \
             -i ansible/inventory/hosts.ini \
