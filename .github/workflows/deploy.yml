@@ -166,6 +166,7 @@ jobs:
 
       - name: Generate Ansible inventory
         run: |
+          mkdir -p ansible/inventory
           PUBLIC_IP="${{ needs.terraform-apply.outputs.public_ip }}"
           cat > ansible/inventory/hosts.ini <<EOF
           [monitoring]
