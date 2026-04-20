@@ -1,5 +1,5 @@
 resource "aws_security_group" "monitoring" {
-  name        = "${var.project_name}-sg"
+  name        = "${var.project_name}-sg-v2"
   description = "Security group for monitoring stack"
 
   # SSH
