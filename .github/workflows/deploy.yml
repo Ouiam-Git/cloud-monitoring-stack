@@ -100,6 +100,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Restore Terraform state
+        uses: actions/cache@v4
+        with:
+          path: terraform/terraform.tfstate
+          key: terraform-state-${{ github.ref_name }}
+          restore-keys: terraform-state-
+
       - name: Write SSH keys
         run: |
           mkdir -p ~/.ssh
@@ -125,6 +132,12 @@ jobs:
           echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_OUTPUT
           echo "grafana_url=$(terraform output -raw grafana_url)" >> $GITHUB_OUTPUT
           echo "prometheus_url=$(terraform output -raw prometheus_url)" >> $GITHUB_OUTPUT
+
+      - name: Save Terraform state
+        uses: actions/cache@v4
+        with:
+          path: terraform/terraform.tfstate
+          key: terraform-state-${{ github.ref_name }}
 
       - name: Print access URLs
         run: |
