@@ -1,0 +1,51 @@
+---
+- name: Deploy Monitoring Stack (Prometheus + Grafana + Node Exporter)
+  hosts: monitoring
+  become: true
+  gather_facts: true
+
+  vars:
+    prometheus_version: "2.51.0"
+    grafana_version: "10.4.2"
+    node_exporter_version: "1.7.0"
+    prometheus_port: 9090
+    grafana_port: 3000
+    node_exporter_port: 9100
+
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - curl
+          - wget
+          - unzip
+          - apt-transport-https
+          - software-properties-common
+        state: present
+
+  roles:
+    - node_exporter
+    - prometheus
+    - grafana
+
+  post_tasks:
+    - name: Wait for Grafana to be ready
+      uri:
+        url: "http://localhost:{{ grafana_port }}/api/health"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 10
+      delay: 5
+
+    - name: Show access info
+      debug:
+        msg:
+          - "Grafana  -> http://{{ ansible_host }}:{{ grafana_port }} (admin/admin)"
+          - "Prometheus -> http://{{ ansible_host }}:{{ prometheus_port }}"
+          - "Node Exporter -> http://{{ ansible_host }}:{{ node_exporter_port }}/metrics"
